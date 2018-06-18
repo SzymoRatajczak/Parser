@@ -1,43 +1,38 @@
-from bs4 import BeautifulSoup
-from urllib import request
 import requests
-import random
-
-def WebImage(url):
-     number=random.randrange(1,10)
-     name=str(number)+".png"
-     request.urlretrieve(url,name)
-
-
-def WebText(url):
-     response=request.urlopen(url).read()
-     text=str(response)
-     plain=text.split("=")
-     fw=fopen("plik.txt","w")
-     for line in plain:
-          fw.write(line)
-     fw.close()
+from bs4 import BeautifulSoup
+import operator
+def WebCrawler(url):
+     dirt_list=[]
+     page=requests.get(url).text
+     soup=BeautifulSoup(page)
+     for line in soup.find_all('a',{'class':'vip'}):
+          content=line.string.split()
+          for i in content:
+               print(i)
+               dirt_list.append(i)
+          clean_up_list(dirt_list)
 
 
-def WebCrawler(max_page,url):
-     page=1
-     while page < max_page:
-          response=requests.get(url)
-          text=response.text
-          soup=BeautifulSoup(text)
-          for line in soup.find_all('a',{'class':'vip'}):
-               href=line.get('href')
-               SelectedImage(href)
-               page+=1
+def clean_up_list(word_list):
+    clean_word_list = []
+    for word in word_list:
+        accepted = "abcdefghijklmnopqrstuvwxyz\'"
+        for c in list(word):
+            if c not in list(accepted):
+                word = word.replace(c, "")
+        if len(word) > 0:
+            print(word)
+            clean_word_list.append(word)
+            dicto(clean_word_list)
 
-def SelectedImage(url):
-     responose=requests.get(url)
-     text=responose.text
-     soup=BeautifulSoup(text)
-     for line in soup.find_all('h1',{'class':'secHd'}):
-          print(line.string)
+def dicto(lista):
+     dictionary={}
+     for word in lista:
+          if word not in dictionary:
+               dictionary[word]=1
+          else:
+               dictionary[word]+=1
+     for key,value in sorted(dictionary.items(),key=operator.itemgetter(1)):
+          print(key,value)
 
-
-WebImage("https://www.google.pl/imgres?imgurl=http://www.drapiezniki.pl/Photos/dziobak-australijski.jpg&imgrefurl=http://www.drapiezniki.pl/1332-dziobak-australijski.html&h=550&w=550&tbnid=UNo6lxR4ExNsJM:&q=dziobak&tbnh=186&tbnw=186&usg=__OALzqnXvXJpUT_GBjyEkUO5jw5U%3D&vet=10ahUKEwiK-qCbzdjbAhVGhaYKHWAsDm4Q_B0I4AEwEw..i&docid=6zzhJxaWSDNVvM&itg=1&sa=X&ved=0ahUKEwiK-qCbzdjbAhVGhaYKHWAsDm4Q_B0I4AEwEw")
-WebText("https://www.ebay.pl/itm/Pirates-of-the-Caribbean-5-movie-Collection-Box-Set-Blu-ray/292236442723?hash=item440aa63c63:g:ywgAAOSwlc5Zqbj5")
-WebCrawler(3,"https://www.ebay.pl/sch/Filmy-i-DVD-/11232/i.html?_catref=1")
+WebCrawler("https://www.ebay.pl/sch/Filmy-i-DVD-/11232/i.html?_catref=1")
