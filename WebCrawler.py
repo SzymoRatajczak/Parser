@@ -1,4 +1,4 @@
-import requests
+import requests #allows you to send HTTTP requets
 from bs4 import BeautifulSoup
 import operator
 def WebCrawler(url):
